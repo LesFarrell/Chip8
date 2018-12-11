@@ -1,2 +1,2 @@
 # Chip8
-Chip8 Emulator / Interpreter using written using C and the Raylib library.
+Chip8 Emulator / Interpreter written using C and the Raylib library.
