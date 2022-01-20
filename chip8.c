@@ -910,7 +910,7 @@ void Chip8_ProcessDroppedFiles()
 
 //------------------------------------------------------------------------------
 
-int FileExists(char *filename)
+int fileexists(char *filename)
 {
     FILE *fp;
     if ((fp = fopen(filename, "r")))
@@ -954,10 +954,10 @@ int main(int argc, char *argv[])
     else if (argc == 2)
     {
         // Load the ROM file passed on the command line.
-        if (FileExists(char *) argv[1]) == 1)
-            {
-                Chip8_LoadROM(argv[1]);
-            }
+        if (fileexists((char *)argv[1]) == 1)
+        {
+            Chip8_LoadROM(argv[1]);
+        }
     }
 
     Console_Show("Debug Window");
