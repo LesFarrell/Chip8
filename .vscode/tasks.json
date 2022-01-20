@@ -1,0 +1,37 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Debug Build",
+            "type": "shell",
+            "command": "tcc",
+            "args": [
+                "-g3",
+                "chip8.c",
+                "console.c",
+                "filedialogs.c",
+                "-lmsvcrt",
+                "-lraylib",
+                "-lopengl32",
+                "-lgdi32",
+                "-lKernel32",
+                "-lshell32",
+                "-luser32",
+                "-lcomdlg32",
+                "-o",
+                "${workspaceFolder}/chip8.exe"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "clear": true,
+                "reveal": "always"
+            },
+            "problemMatcher": "$gcc"
+        },
+    ]
+}

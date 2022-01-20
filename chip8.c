@@ -22,10 +22,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <raylib.h>
 #include <string.h>
 #include <time.h>
 #include "chip8.h"
-#include "raylib.h"
 #include "console.h"
 #include "filedialogs.h"
 
@@ -135,7 +135,7 @@ int Chip8_LoadROM(char *ROM_FileName)
 
 //------------------------------------------------------------------------------
 
-int Chip8_LoadLogo()
+void Chip8_LoadLogo()
 {
     unsigned short pos = 512;
     for (int loop = 0; loop < sizeof(Chip8_LogoRom); loop++)
@@ -148,6 +148,7 @@ int Chip8_LoadLogo()
 
 void Chip8_ShowProgramState(void)
 {
+
     int i = 0;
     int y = 40;
     char string[100];
@@ -194,8 +195,8 @@ void Chip8_ShowProgramState(void)
 
 void Chip8_EmulateCPU(void)
 {
-    unsigned char x = 0, y = 0;
-    unsigned short kk = 0, nnn = 0, n = 0;
+    int x = 0, y = 0;
+    int kk = 0, nnn = 0;
     unsigned short height = 0;
     unsigned short pixel = 0;
     char buffer[1024] = {'\0'};
@@ -430,7 +431,7 @@ void Chip8_EmulateCPU(void)
         // otherwise 0. Then Vx is divided by 2.
         case 0x0006:
             x = (Chip8_OpCode & 0x0F00) >> 8;
-            sprintf(buffer, "%X\t : 8xy6\t - \tSHR V%d {, V%d}", Chip8_OpCode, x);
+            sprintf(buffer, "%X\t : 8xy6\t - \tSHR V%d {, V%d}", Chip8_OpCode, x, x);
             Chip8_Registers[0xF] = Chip8_Registers[x] & 0x1;
             Chip8_Registers[x] = Chip8_Registers[x] / 2;
             Chip8_ProgramCounter += 2;
@@ -462,7 +463,7 @@ void Chip8_EmulateCPU(void)
         // otherwise to 0. Then Vx is multiplied by 2.
         case 0x000E:
             x = (Chip8_OpCode & 0x0F00) >> 8;
-            sprintf(buffer, "%X\t : 8xyE\t - \tSHL V%d {, V%d}", Chip8_OpCode, x);
+            sprintf(buffer, "%X\t : 8xyE\t - \tSHL V%d {, V%d}", Chip8_OpCode, x, x);
             Chip8_Registers[0xF] = Chip8_Registers[x] >> 7;
             Chip8_Registers[x] = Chip8_Registers[x] * 2;
             Chip8_ProgramCounter += 2;
@@ -909,6 +910,19 @@ void Chip8_ProcessDroppedFiles()
 
 //------------------------------------------------------------------------------
 
+int FileExists(char *filename)
+{
+    FILE *fp;
+    if ((fp = fopen(filename, "r")))
+    {
+        fclose(fp);
+        return 1;
+    }
+    return 0;
+}
+
+//------------------------------------------------------------------------------
+
 int main(int argc, char *argv[])
 {
     InitWindow(640, 320, "Chip8 Virtual Machine");
@@ -920,12 +934,12 @@ int main(int argc, char *argv[])
     // Clear the client window
     BeginDrawing();
     ClearBackground(BLUE);
-    EndDrawing();
+    //EndDrawing();
 
-    // Initialise the Chip8 registers
+    // Initialise the Chip8 registers and memory.
     Chip8_Initialise();
 
-    // Load the logo rom
+    // Load the default logo rom.
     Chip8_LoadLogo();
 
     // No command line passed, so browse for a CHIP8 ROM file instead.
@@ -937,15 +951,18 @@ int main(int argc, char *argv[])
             Chip8_LoadROM(ROM_FileName);
         }
     }
-
-    // Load the ROM file passed on the command line
     else if (argc == 2)
     {
-        Chip8_LoadROM(argv[1]);
+        // Load the ROM file passed on the command line.
+        if (FileExists(char *) argv[1]) == 1)
+            {
+                Chip8_LoadROM(argv[1]);
+            }
     }
 
-    //Console_Show("Debug Window");
+    Console_Show("Debug Window");
 
+    // Initialise the delay timer.
     LastChip8_DelayUpdate = GetTime();
     while (!WindowShouldClose())
     {
@@ -971,11 +988,12 @@ int main(int argc, char *argv[])
         Chip8_DrawGraphics();
 
         // Show chip 8 register status.
-        // Chip8_ShowProgramState();
+        Chip8_ShowProgramState();
 
         // End Raylib drawing.
         EndDrawing();
     }
     CloseWindow();
+
     return 0;
 }

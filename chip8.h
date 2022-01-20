@@ -89,12 +89,12 @@
 
 
     // Function prototypes
-    int Chip8_LoadLogo();
+    void Chip8_LoadLogo();
     int Chip8_LoadROM(char *ROM_FileName);
     void Chip8_Initialise(void);
     void Chip8_EmulateCPU(void);
     void Chip8_GetKeyStates(void);
-    void Chip8_DrawGraphics(void);    
-    void Chip8_ShowProgramState(void);    
-    void Chip8_ProcessDroppedFiles();
+    void Chip8_DrawGraphics(void);
+    void Chip8_ShowProgramState(void);
+    void Chip8_ProcessDroppedFiles();    
 #endif

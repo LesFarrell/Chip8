@@ -17,20 +17,19 @@ HANDLE consoleHandle = NULL;
 ///
 /// **Notes:**
 ///
-int Console_Show(const char *title) {
-    AllocConsole();
-    AttachConsole(GetCurrentProcessId());
+int Console_Show(const char *title)
+{
+  AllocConsole();
+  AttachConsole(GetCurrentProcessId());
 
-    freopen("CON", "w", stdout);
-    SetConsoleTitleA(title);
-    consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-    Console_Clear();
-    return 0;
+  freopen("CON", "w", stdout);
+  SetConsoleTitleA(title);
+  consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+  Console_Clear();
+  return 0;
 }
 
-
 //----------------------------------------------------------------------------------------
-
 
 ///
 /// # Console_Hide
@@ -46,15 +45,14 @@ int Console_Show(const char *title) {
 ///
 /// **Notes:**
 ///
-int Console_Hide() {
-    FreeConsole();
-    consoleHandle = NULL;
-    return 0;
+int Console_Hide()
+{
+  FreeConsole();
+  consoleHandle = NULL;
+  return 0;
 }
 
-
 //----------------------------------------------------------------------------------------
-
 
 ///
 /// # Console_SetXY
@@ -72,17 +70,18 @@ int Console_Hide() {
 ///
 /// **Notes:**
 ///
-int Console_SetXY(int X, int Y) {
-    COORD pos;
+int Console_SetXY(int X, int Y)
+{
+  COORD pos;
 
-    if (consoleHandle == NULL) return 0;
-    pos.X = X;
-    pos.Y = Y;
-    SetConsoleCursorPosition(consoleHandle, pos);
-
+  if (consoleHandle == NULL)
     return 0;
-}
+  pos.X = X;
+  pos.Y = Y;
+  SetConsoleCursorPosition(consoleHandle, pos);
 
+  return 0;
+}
 
 ///
 /// # Console_TextXY
@@ -104,18 +103,18 @@ int Console_SetXY(int X, int Y) {
 ///
 int Console_TextXY(const char *string, int X, int Y)
 {
-    COORD pos;
+  COORD pos;
 
-    if (consoleHandle == NULL) return 0;
-    pos.X = X;
-    pos.Y = Y;
-    SetConsoleCursorPosition(consoleHandle, pos);
-    printf("%s",string);
+  if (consoleHandle == NULL)
     return 0;
+  pos.X = X;
+  pos.Y = Y;
+  SetConsoleCursorPosition(consoleHandle, pos);
+  printf("%s", string);
+  return 0;
 }
 
 //----------------------------------------------------------------------------------------
-
 
 ///
 /// # Console_SetTextColour
@@ -151,13 +150,13 @@ int Console_TextXY(const char *string, int X, int Y)
 /// | Light Yellow   | 14           |
 /// | Light White    | 15           |
 ///
-int Console_TextColour(int TextColour) {
-    if (consoleHandle == NULL) return 0;
-    SetConsoleTextAttribute(consoleHandle, (WORD) TextColour);
+int Console_TextColour(int TextColour)
+{
+  if (consoleHandle == NULL)
     return 0;
+  SetConsoleTextAttribute(consoleHandle, (WORD)TextColour);
+  return 0;
 }
-
-
 
 ///
 /// # Console_SetColour
@@ -194,17 +193,16 @@ int Console_TextColour(int TextColour) {
 /// | Light Yellow   | 14           |
 /// | Light White    | 15           |
 ///
-int Console_SetColour(int foreground, int background) {
+int Console_SetColour(int foreground, int background)
+{
 
-    if (consoleHandle == NULL) return 0;
-    SetConsoleTextAttribute(consoleHandle, background * 16 + foreground);
-    return 1;
+  if (consoleHandle == NULL)
+    return 0;
+  SetConsoleTextAttribute(consoleHandle, background * 16 + foreground);
+  return 1;
 }
 
-
-
 //----------------------------------------------------------------------------------------
-
 
 ///
 /// # Console_Clear
@@ -220,38 +218,44 @@ int Console_SetColour(int foreground, int background) {
 ///
 /// **Notes:**
 ///
-int Console_Clear() {
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    COORD coordScreen = {0, 0};
-    DWORD cCharsWritten;
-    DWORD dwConSize;
+int Console_Clear()
+{
+  CONSOLE_SCREEN_BUFFER_INFO csbi;
+  COORD coordScreen = {0, 0};
+  DWORD cCharsWritten;
+  DWORD dwConSize;
 
-    if (consoleHandle == NULL) { return 0; }
+  if (consoleHandle == NULL)
+  {
+    return 0;
+  }
 
-    // Get the number of character cells in the current buffer.
-    if (!GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)) return 0;
+  // Get the number of character cells in the current buffer.
+  if (!GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi))
+    return 0;
 
-    // Calculate the size of the console.
-    dwConSize = csbi.dwSize.X * csbi.dwSize.Y;
+  // Calculate the size of the console.
+  dwConSize = csbi.dwSize.X * csbi.dwSize.Y;
 
-    // Fill the entire screen with blanks.
-    if (!FillConsoleOutputCharacter(consoleHandle, (TCHAR)' ', dwConSize, coordScreen, &cCharsWritten)) return 0;
+  // Fill the entire screen with blanks.
+  if (!FillConsoleOutputCharacter(consoleHandle, (TCHAR)' ', dwConSize, coordScreen, &cCharsWritten))
+    return 0;
 
-    // Get the current text attribute.
-    if (!GetConsoleScreenBufferInfo(consoleHandle, &csbi)) { return 0; }
+  // Get the current text attribute.
+  if (!GetConsoleScreenBufferInfo(consoleHandle, &csbi))
+  {
+    return 0;
+  }
 
-    // Set the buffer's attributes accordingly.
-    if (!FillConsoleOutputAttribute(consoleHandle, csbi.wAttributes, dwConSize, coordScreen, &cCharsWritten)) return 0;
+  // Set the buffer's attributes accordingly.
+  if (!FillConsoleOutputAttribute(consoleHandle, csbi.wAttributes, dwConSize, coordScreen, &cCharsWritten))
+    return 0;
 
-    // Put the cursor at its home coordinates.
-    SetConsoleCursorPosition(consoleHandle, coordScreen);
+  // Put the cursor at its home coordinates.
+  SetConsoleCursorPosition(consoleHandle, coordScreen);
 
-    return 1;
+  return 1;
 }
-
-
-
-
 
 ///
 /// # Console_SetSize
@@ -273,11 +277,12 @@ int Console_Clear() {
 ///     console_setsize(w,h)
 ///     ```
 ///
-int Console_SetSize(int width,int height) {
-    COORD  dwSize;
-    int result = 0;
-    dwSize.X = width;
-    dwSize.Y = height;
-    result = SetConsoleScreenBufferSize(consoleHandle,  dwSize);
-    return result;
+int Console_SetSize(int width, int height)
+{
+  COORD dwSize;
+  int result = 0;
+  dwSize.X = width;
+  dwSize.Y = height;
+  result = SetConsoleScreenBufferSize(consoleHandle, dwSize);
+  return result;
 }
