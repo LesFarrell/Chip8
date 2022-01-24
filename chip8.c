@@ -28,6 +28,7 @@
 #include "chip8.h"
 #include "console.h"
 #include "filedialogs.h"
+#include "debug.h"
 
 double LastChip8_DelayUpdate = 0;
 double LastSoundUpdate = 0;
@@ -216,7 +217,7 @@ void Chip8_EmulateCPU(void)
         // 00E0 - CLS
         // Clear the display.
         case 0x0000:
-            sprintf(buffer, "%X\t : 00E0\t - \tCLS", Chip8_OpCode);
+            Debug_Print(LOG_INFO, "%X\t : 00E0\t - \tCLS", Chip8_OpCode);
             for (int c = 0; c < 2048; c++)
             {
                 Chip8_DisplayMemory[c] = 0;
@@ -229,14 +230,14 @@ void Chip8_EmulateCPU(void)
         // Return from a subroutine.
         // The interpreter sets the program counter to the address at the top of the stack, then subtracts 1 from the stack pointer.
         case 0x000E:
-            sprintf(buffer, "%X\t\t : 00EE\t - \tRET", Chip8_OpCode);
+            Debug_Print(LOG_INFO, "%X\t\t : 00EE\t - \tRET", Chip8_OpCode);
             Chip8_StackPointer--;
             Chip8_ProgramCounter = Chip8_Stack[Chip8_StackPointer];
             Chip8_ProgramCounter += 2;
             break;
 
         default:
-            sprintf(buffer, "Unknown Chip8_OpCode [0x0000]: 0x%X\n", Chip8_OpCode);
+            Debug_Print(LOG_INFO, "Unknown Chip8_OpCode [0x0000]: 0x%X\n", Chip8_OpCode);
         }
         break;
 
@@ -245,7 +246,7 @@ void Chip8_EmulateCPU(void)
     // The interpreter sets the program counter to nnn.
     case 0x1000:
         nnn = (Chip8_OpCode & 0x0FFF);
-        sprintf(buffer, "%X\t : 1nnn\t - \tJP %d", Chip8_OpCode, nnn);
+        Debug_Print(LOG_INFO, "%X\t : 1nnn\t - \tJP %d", Chip8_OpCode, nnn);
         Chip8_ProgramCounter = nnn;
         break;
 
@@ -255,7 +256,7 @@ void Chip8_EmulateCPU(void)
     // The Chip8_ProgramCounter is then set to nnn.
     case 0x2000:
         nnn = (Chip8_OpCode & 0x0FFF);
-        sprintf(buffer, "%X\t : 2nnn\t - \tCALL %d", Chip8_OpCode, nnn);
+        Debug_Print(LOG_INFO, "%X\t : 2nnn\t - \tCALL %d", Chip8_OpCode, nnn);
         Chip8_Stack[Chip8_StackPointer] = Chip8_ProgramCounter;
         Chip8_StackPointer++;
         Chip8_ProgramCounter = nnn;
@@ -268,7 +269,7 @@ void Chip8_EmulateCPU(void)
     case 0x3000:
         x = (Chip8_OpCode & 0x0F00) >> 8;
         kk = (Chip8_OpCode & 0x00FF);
-        sprintf(buffer, "%X\t : 3xkk\t - \tSE V%d, %d", Chip8_OpCode, x, kk);
+        Debug_Print(LOG_INFO, "%X\t : 3xkk\t - \tSE V%d, %d", Chip8_OpCode, x, kk);
         if (Chip8_Registers[x] == kk)
         {
             Chip8_ProgramCounter += 2;
@@ -283,7 +284,7 @@ void Chip8_EmulateCPU(void)
     case 0x4000:
         x = (Chip8_OpCode & 0x0F00) >> 8;
         kk = (Chip8_OpCode & 0x00FF);
-        sprintf(buffer, "%X\t : 4xkk\t - \tSNE V%d, %d", Chip8_OpCode, x, kk);
+        Debug_Print(LOG_INFO, "%X\t : 4xkk\t - \tSNE V%d, %d", Chip8_OpCode, x, kk);
         if (Chip8_Registers[x] != kk)
         {
             Chip8_ProgramCounter += 2;
@@ -298,7 +299,7 @@ void Chip8_EmulateCPU(void)
     case 0x5000:
         x = (Chip8_OpCode & 0x0F00) >> 8;
         y = (Chip8_OpCode & 0x00F0) >> 4;
-        sprintf(buffer, "%X\t : 5xy0\t - \tSE V%d, V%d", Chip8_OpCode, x, y);
+        Debug_Print(LOG_INFO, "%X\t : 5xy0\t - \tSE V%d, V%d", Chip8_OpCode, x, y);
         if (Chip8_Registers[x] == Chip8_Registers[y])
         {
             Chip8_ProgramCounter += 2;
@@ -312,7 +313,7 @@ void Chip8_EmulateCPU(void)
     case 0x6000:
         x = (Chip8_OpCode & 0x0F00) >> 8;
         kk = (Chip8_OpCode & 0x00FF);
-        sprintf(buffer, "%X\t : 6xkk\t - \tLD V%d, %d", Chip8_OpCode, x, kk);
+        Debug_Print(LOG_INFO, "%X\t : 6xkk\t - \tLD V%d, %d", Chip8_OpCode, x, kk);
         Chip8_Registers[x] = kk;
         Chip8_ProgramCounter += 2;
         break;
@@ -323,7 +324,7 @@ void Chip8_EmulateCPU(void)
     case 0x7000:
         x = (Chip8_OpCode & 0x0F00) >> 8;
         kk = (Chip8_OpCode & 0x00FF);
-        sprintf(buffer, "%X\t : 7xkk\t - \tADD V%d, %d", Chip8_OpCode, x, kk);
+        Debug_Print(LOG_INFO, "%X\t : 7xkk\t - \tADD V%d, %d", Chip8_OpCode, x, kk);
         Chip8_Registers[x] += kk;
         Chip8_ProgramCounter += 2;
         break;
@@ -338,7 +339,7 @@ void Chip8_EmulateCPU(void)
         case 0x000:
             x = (Chip8_OpCode & 0x0F00) >> 8;
             y = (Chip8_OpCode & 0x00F0) >> 4;
-            sprintf(buffer, "%X\t : 8xy0\t - \tLD V%d, V%d", Chip8_OpCode, x, y);
+            Debug_Print(LOG_INFO, "%X\t : 8xy0\t - \tLD V%d, V%d", Chip8_OpCode, x, y);
             Chip8_Registers[x] = Chip8_Registers[y];
             Chip8_ProgramCounter += 2;
             break;
@@ -351,7 +352,7 @@ void Chip8_EmulateCPU(void)
         case 0x001:
             x = (Chip8_OpCode & 0x0F00) >> 8;
             y = (Chip8_OpCode & 0x00F0) >> 4;
-            sprintf(buffer, "%X\t : 8xy1\t - \tOR V%d, V%d", Chip8_OpCode, x, y);
+            Debug_Print(LOG_INFO, "%X\t : 8xy1\t - \tOR V%d, V%d", Chip8_OpCode, x, y);
             Chip8_Registers[x] |= Chip8_Registers[y];
             Chip8_ProgramCounter += 2;
             break;
@@ -364,7 +365,7 @@ void Chip8_EmulateCPU(void)
         case 0x002:
             x = (Chip8_OpCode & 0x0F00) >> 8;
             y = (Chip8_OpCode & 0x00F0) >> 4;
-            sprintf(buffer, "%X\t : 8xy2\t - \tAND V%d, V%d", Chip8_OpCode, x, y);
+            Debug_Print(LOG_INFO, "%X\t : 8xy2\t - \tAND V%d, V%d", Chip8_OpCode, x, y);
             Chip8_Registers[x] &= Chip8_Registers[y];
             Chip8_ProgramCounter += 2;
             break;
@@ -379,7 +380,7 @@ void Chip8_EmulateCPU(void)
         case 0x003:
             x = (Chip8_OpCode & 0x0F00) >> 8;
             y = (Chip8_OpCode & 0x00F0) >> 4;
-            sprintf(buffer, "%X\t : 8xy3\t - \tXOR V%d, V%d", Chip8_OpCode, x, y);
+            Debug_Print(LOG_INFO, "%X\t : 8xy3\t - \tXOR V%d, V%d", Chip8_OpCode, x, y);
             Chip8_Registers[x] ^= Chip8_Registers[y];
             Chip8_ProgramCounter += 2;
             break;
@@ -392,7 +393,7 @@ void Chip8_EmulateCPU(void)
         case 0x0004:
             x = (Chip8_OpCode & 0x0F00) >> 8;
             y = (Chip8_OpCode & 0x00F0) >> 4;
-            sprintf(buffer, "%X\t : 8xy4\t - \tADD V%d, V%d", Chip8_OpCode, x, y);
+            Debug_Print(LOG_INFO, "%X\t : 8xy4\t - \tADD V%d, V%d", Chip8_OpCode, x, y);
             if (Chip8_Registers[y] > (255 - Chip8_Registers[x]))
             {
                 Chip8_Registers[0xF] = 1;
@@ -412,7 +413,7 @@ void Chip8_EmulateCPU(void)
         case 0x0005:
             x = (Chip8_OpCode & 0x0F00) >> 8;
             y = (Chip8_OpCode & 0x00F0) >> 4;
-            sprintf(buffer, "%X\t : 8xy5\t - \tSUB V%d, V%d", Chip8_OpCode, x, y);
+            Debug_Print(LOG_INFO, "%X\t : 8xy5\t - \tSUB V%d, V%d", Chip8_OpCode, x, y);
             if (Chip8_Registers[x] > Chip8_Registers[y])
             {
                 Chip8_Registers[0xF] = 1;
@@ -431,7 +432,7 @@ void Chip8_EmulateCPU(void)
         // otherwise 0. Then Vx is divided by 2.
         case 0x0006:
             x = (Chip8_OpCode & 0x0F00) >> 8;
-            sprintf(buffer, "%X\t : 8xy6\t - \tSHR V%d {, V%d}", Chip8_OpCode, x, x);
+            Debug_Print(LOG_INFO, "%X\t : 8xy6\t - \tSHR V%d {, V%d}", Chip8_OpCode, x, x);
             Chip8_Registers[0xF] = Chip8_Registers[x] & 0x1;
             Chip8_Registers[x] = Chip8_Registers[x] / 2;
             Chip8_ProgramCounter += 2;
@@ -444,7 +445,7 @@ void Chip8_EmulateCPU(void)
         case 0x0007:
             x = (Chip8_OpCode & 0x0F00) >> 8;
             y = (Chip8_OpCode & 0x00F0) >> 4;
-            sprintf(buffer, "%X\t : 8Xy7\t - \tSubn V%d, V%d", Chip8_OpCode, x, y);
+            Debug_Print(LOG_INFO, "%X\t : 8Xy7\t - \tSubn V%d, V%d", Chip8_OpCode, x, y);
             if (Chip8_Registers[y] > Chip8_Registers[x])
             {
                 Chip8_Registers[0xF] = 1;
@@ -463,7 +464,7 @@ void Chip8_EmulateCPU(void)
         // otherwise to 0. Then Vx is multiplied by 2.
         case 0x000E:
             x = (Chip8_OpCode & 0x0F00) >> 8;
-            sprintf(buffer, "%X\t : 8xyE\t - \tSHL V%d {, V%d}", Chip8_OpCode, x, x);
+            Debug_Print(LOG_INFO, "%X\t : 8xyE\t - \tSHL V%d {, V%d}", Chip8_OpCode, x, x);
             Chip8_Registers[0xF] = Chip8_Registers[x] >> 7;
             Chip8_Registers[x] = Chip8_Registers[x] * 2;
             Chip8_ProgramCounter += 2;
@@ -478,7 +479,7 @@ void Chip8_EmulateCPU(void)
     case 0x9000:
         x = (Chip8_OpCode & 0x0F00) >> 8;
         y = (Chip8_OpCode & 0x00F0) >> 4;
-        sprintf(buffer, "%X\t : 9xy0\t - \tSNE V%d, V%d", Chip8_OpCode, x, y);
+        Debug_Print(LOG_INFO, "%X\t : 9xy0\t - \tSNE V%d, V%d", Chip8_OpCode, x, y);
         if (Chip8_Registers[x] != Chip8_Registers[y])
         {
             Chip8_ProgramCounter += 2;
@@ -491,7 +492,7 @@ void Chip8_EmulateCPU(void)
     // The value of register Chip8_IndexRegister is set to nnn.
     case 0xA000:
         nnn = (Chip8_OpCode & 0x0FFF);
-        sprintf(buffer, "%X\t : Annn\t - \tLD I, %d", Chip8_OpCode, nnn);
+        Debug_Print(LOG_INFO, "%X\t : Annn\t - \tLD I, %d", Chip8_OpCode, nnn);
         Chip8_IndexRegister = nnn;
         Chip8_ProgramCounter += 2;
         break;
@@ -501,7 +502,7 @@ void Chip8_EmulateCPU(void)
     // The program counter is set to nnn plus the value of V0.
     case 0xB000:
         nnn = (Chip8_OpCode & 0x0FFF);
-        sprintf(buffer, "%X\t : Bnnn\t - \tJP V0, %d", Chip8_OpCode, nnn);
+        Debug_Print(LOG_INFO, "%X\t : Bnnn\t - \tJP V0, %d", Chip8_OpCode, nnn);
         Chip8_ProgramCounter = nnn + Chip8_Registers[0];
         break;
 
@@ -513,7 +514,7 @@ void Chip8_EmulateCPU(void)
     case 0xC000:
         x = (Chip8_OpCode & 0x0F00) >> 8;
         kk = (Chip8_OpCode & 0x00FF);
-        sprintf(buffer, "%X\t : Cxkk\t - \tRND V%d, %d", Chip8_OpCode, x, kk);
+        Debug_Print(LOG_INFO, "%X\t : Cxkk\t - \tRND V%d, %d", Chip8_OpCode, x, kk);
         Chip8_Registers[x] = (rand() % 256) & kk;
         Chip8_ProgramCounter += 2;
         break;
@@ -530,7 +531,7 @@ void Chip8_EmulateCPU(void)
         x = (Chip8_OpCode & 0x0F00) >> 8;
         y = (Chip8_OpCode & 0x00F0) >> 4;
         height = Chip8_OpCode & 0x000F;
-        sprintf(buffer, "%X\t : Dxyn\t - \tDRW V%d, V%d, %d", Chip8_OpCode, x, y, height);
+        Debug_Print(LOG_INFO, "%X\t : Dxyn\t - \tDRW V%d, V%d, %d", Chip8_OpCode, x, y, height);
         pixel = 0;
         Chip8_Registers[0xF] = 0;
         for (int yline = 0; yline < height; yline++)
@@ -563,7 +564,7 @@ void Chip8_EmulateCPU(void)
         // Chip8_ProgramCounter is increased by 2.
         case 0x009E:
             x = (Chip8_OpCode & 0x0F00) >> 8;
-            sprintf(buffer, "%X\t : Ex9E\t - \tSKP V%d", Chip8_OpCode, x);
+            Debug_Print(LOG_INFO, "%X\t : Ex9E\t - \tSKP V%d", Chip8_OpCode, x);
             if (Chip8_KeyStates[Chip8_Registers[x]] == 1)
             {
                 Chip8_ProgramCounter += 2;
@@ -578,7 +579,7 @@ void Chip8_EmulateCPU(void)
         // Chip8_ProgramCounter is increased by 2.
         case 0x00A1:
             x = (Chip8_OpCode & 0x0F00) >> 8;
-            sprintf(buffer, "%X\t : ExA1\t - \tSKNP V%d", Chip8_OpCode, x);
+            Debug_Print(LOG_INFO, "%X\t : ExA1\t - \tSKNP V%d", Chip8_OpCode, x);
             if (Chip8_KeyStates[Chip8_Registers[x]] == 0)
             {
                 Chip8_ProgramCounter += 2;
@@ -597,7 +598,7 @@ void Chip8_EmulateCPU(void)
         // The value of Chip8_DelayTimer is placed into Vx.
         case 0x0007:
             x = (Chip8_OpCode & 0x0F00) >> 8;
-            sprintf(buffer, "%X\t : Fx07\t - \tLD V%d, Chip8_DelayTimer", Chip8_OpCode, x);
+            Debug_Print(LOG_INFO, "%X\t : Fx07\t - \tLD V%d, Chip8_DelayTimer", Chip8_OpCode, x);
             Chip8_Registers[x] = Chip8_DelayTimer;
             Chip8_ProgramCounter += 2;
             break;
@@ -608,7 +609,7 @@ void Chip8_EmulateCPU(void)
         // then the value of that key is stored in Vx.
         case 0x000A:
             x = (Chip8_OpCode & 0x0F00) >> 8;
-            sprintf(buffer, "%X\t : Fx0A\t - \tLD V%d, K", Chip8_OpCode, x);
+            Debug_Print(LOG_INFO, "%X\t : Fx0A\t - \tLD V%d, K", Chip8_OpCode, x);
             int keyPress = 0;
             for (int i = 0; i < 16; i++)
             {
@@ -631,7 +632,7 @@ void Chip8_EmulateCPU(void)
         // Chip8_DelayTimer is set equal to the value of Vx.
         case 0x0015:
             x = (Chip8_OpCode & 0x0F00) >> 8;
-            sprintf(buffer, "%X\t : Fx15\t - \tLD Chip8_DelayTimer, V%d", Chip8_OpCode, x);
+            Debug_Print(LOG_INFO, "%X\t : Fx15\t - \tLD Chip8_DelayTimer, V%d", Chip8_OpCode, x);
             Chip8_DelayTimer = Chip8_Registers[x];
             Chip8_ProgramCounter += 2;
             break;
@@ -641,7 +642,7 @@ void Chip8_EmulateCPU(void)
         // Chip8_SoundTimer is set equal to the value of Vx.
         case 0x0018:
             x = (Chip8_OpCode & 0x0F00) >> 8;
-            sprintf(buffer, "%X\t : Fx18\t - \tLD Chip8_SoundTimer, V%d", Chip8_OpCode, x);
+            Debug_Print(LOG_INFO, "%X\t : Fx18\t - \tLD Chip8_SoundTimer, V%d", Chip8_OpCode, x);
             Chip8_SoundTimer = Chip8_Registers[x];
             Chip8_ProgramCounter += 2;
             break;
@@ -651,7 +652,7 @@ void Chip8_EmulateCPU(void)
         // The values of I and Vx are added, and the results are stored in I.
         case 0x001E:
             x = (Chip8_OpCode & 0x0F00) >> 8;
-            sprintf(buffer, "%X\t : Fx1E\t - \tADD I, V%x", Chip8_OpCode, x);
+            Debug_Print(LOG_INFO, "%X\t : Fx1E\t - \tADD I, V%x", Chip8_OpCode, x);
             // VF is set to 1 when range overflow (Chip8_IndexRegister + VX > 0xFFF), and 0 when it isn't.
             if (Chip8_IndexRegister + Chip8_Registers[x] > 0xFFF)
             {
@@ -670,7 +671,7 @@ void Chip8_EmulateCPU(void)
         // The value of Chip8_IndexRegister is set to the location for the hexadecimal sprite corresponding to the value of Vx.
         case 0x0029:
             x = (Chip8_OpCode & 0x0F00) >> 8;
-            sprintf(buffer, "%X\t : Fx29\t - \tLD F, V%d", Chip8_OpCode, x);
+            Debug_Print(LOG_INFO, "%X\t : Fx29\t - \tLD F, V%d", Chip8_OpCode, x);
             Chip8_IndexRegister = Chip8_Registers[x] * 0x5;
             Chip8_ProgramCounter += 2;
             break;
@@ -681,7 +682,7 @@ void Chip8_EmulateCPU(void)
         // the tens digit at location I+1, and the ones digit at location Chip8_IndexRegister + 2.
         case 0x0033:
             x = (Chip8_OpCode & 0x0F00) >> 8;
-            sprintf(buffer, "%X\t : Fx33\t - \tLD B, V%d", Chip8_OpCode, x);
+            Debug_Print(LOG_INFO, "%X\t : Fx33\t - \tLD B, V%d", Chip8_OpCode, x);
             Chip8_ProgramMemory[Chip8_IndexRegister] = Chip8_Registers[x] / 100;
             Chip8_ProgramMemory[Chip8_IndexRegister + 1] = (Chip8_Registers[x] / 10) % 10;
             Chip8_ProgramMemory[Chip8_IndexRegister + 2] = (Chip8_Registers[x] % 100) % 10;
@@ -694,7 +695,7 @@ void Chip8_EmulateCPU(void)
         // starting at the address in Chip8_IndexRegister.
         case 0x0055:
             x = (Chip8_OpCode & 0x0F00) >> 8;
-            sprintf(buffer, "%X\t : Fx55\t - \tLD [I], V%d", Chip8_OpCode, x);
+            Debug_Print(LOG_INFO, "%X\t : Fx55\t - \tLD [I], V%d", Chip8_OpCode, x);
             for (int i = 0; i <= x; i++)
             {
                 Chip8_ProgramMemory[Chip8_IndexRegister + i] = Chip8_Registers[i];
@@ -707,7 +708,7 @@ void Chip8_EmulateCPU(void)
         // The interpreter reads values from memory starting at location I into registers V0 through Vx.
         case 0x0065:
             x = (Chip8_OpCode & 0x0F00) >> 8;
-            sprintf(buffer, "%X\t : Fx65\t - \tLD V%d, [I]", Chip8_OpCode, x);
+            Debug_Print(LOG_INFO, "%X\t : Fx65\t - \tLD V%d, [I]", Chip8_OpCode, x);
             for (int i = 0; i <= x; i++)
             {
                 Chip8_Registers[i] = Chip8_ProgramMemory[Chip8_IndexRegister + i];

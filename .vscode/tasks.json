@@ -20,6 +20,7 @@
                 "-lshell32",
                 "-luser32",
                 "-lcomdlg32",
+                "debug.c",
                 "-o",
                 "${workspaceFolder}/chip8.exe"
             ],
