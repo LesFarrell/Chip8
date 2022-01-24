@@ -22,7 +22,7 @@
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 /*
- * Function: RemoveCRLF
+ * Function: Debug_RemoveCRLF
  * Remove carriage returns and line feeds from the passed string.
  *
  * Parameters:
@@ -32,7 +32,7 @@
  * s - is updated with the updated string.
  *
  */
-void RemoveCRLF(char *s)
+void Debug_RemoveCRLF(char *s)
 {
     while (*s && *s != '\n' && *s != '\r')
     {
@@ -208,7 +208,7 @@ void Debug_Print(int LOG_TYPE, char *str, ...)
     wvsprintfA(Result, str, ptr);
 
     // Remove any extra carriage returns or Line Feeds from the debug string.
-    RemoveCRLF(Result);
+    Debug_RemoveCRLF(Result);
 
     OutputDebugStringA(Result);
     Debug_LogMessage(LOG_TYPE, Result);
