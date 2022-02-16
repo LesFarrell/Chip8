@@ -1,7 +1,0 @@
-LIBRARY chip8.exe
-
-EXPORTS
-Debug_GetISOTimeDate
-Debug_LogMessage
-Debug_Print
-RemoveCRLF

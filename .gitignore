@@ -1,6 +1,6 @@
 docs/*
-games/*
 misc/*
 Validation Roms/*
-compile.bat
+games/*
+.vscode/*.json
 chip8.exe

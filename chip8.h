@@ -29,6 +29,12 @@
 #ifndef CHIP8_HEADER
     #define CHIP8_HEADER
 
+    #define BACKGROUND BLUE
+    #define FOREGROUND WHITE
+    #define SCREENWIDTH 64
+    #define SCREENHEIGHT 32
+
+
     // Current Chip8_OpCode
     unsigned short  Chip8_OpCode;                       // Current Chip8_OpCode
 
@@ -88,13 +94,16 @@
     };
 
 
+
+
     // Function prototypes
-    void Chip8_LoadLogo();
+    void Chip8_LoadDefaultROM(void);
     int Chip8_LoadROM(char *ROM_FileName);
     void Chip8_Initialise(void);
     void Chip8_EmulateCPU(void);
     void Chip8_GetKeyStates(void);
-    void Chip8_DrawGraphics(void);
-    void Chip8_ShowProgramState(void);
-    void Chip8_ProcessDroppedFiles();    
+    void Chip8_DrawScreen(void);
+    void Chip8_ShowProgramState(void);    
+    void Chip8_ProcessDroppedFiles(void);
+
 #endif
