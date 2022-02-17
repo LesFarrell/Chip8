@@ -2,5 +2,5 @@ docs/*
 misc/*
 Validation Roms/*
 games/*
-.vscode/*.json
+.vscode/*
 chip8.exe

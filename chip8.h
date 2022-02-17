@@ -35,6 +35,12 @@
     #define SCREENHEIGHT 32
 
 
+    enum CHIP8_KEYSTATES
+    {
+        CHIP8_KEYUP = 0, 
+        CHIP8_KEYDOWN = 1
+    };
+
     // Current Chip8_OpCode
     unsigned short  Chip8_OpCode;                       // Current Chip8_OpCode
 
@@ -45,7 +51,7 @@
     unsigned char   Chip8_DisplayMemory[2048];          // Chip 8 Display (64 * 32)
 
     // Various Registers
-    unsigned char   Chip8_Registers[16];                // Chip8's 16 Registers
+    unsigned char   Chip8_VRegister[16];                // Chip8's 16 Registers
     unsigned short  Chip8_IndexRegister;                // Chip8's Index register
     unsigned short  Chip8_ProgramCounter;               // Program counter
 
