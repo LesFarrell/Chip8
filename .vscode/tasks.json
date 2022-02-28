@@ -4,21 +4,79 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "Debug Build",
             "type": "shell",
-            "command": "msbuild",
+            "command": "gcc",
             "args": [
-                // Ask msbuild to generate full paths for file names.
-                "/property:GenerateFullPaths=true",
-                "/t:build"
+                "-IC:/TDM-GCC-32/lib/",
+                "-g3",
+                "-Og",
+                "-Wno-stringop-truncation",
+                "-Wno-stringop-overflow",
+                "-fcommon",                
+                "chip8.c",
+                "tigr.c",
+                "console.c",
+                "filedialogs.c",              
+                "-lmsvcrt", 
+                "-lopengl32", 
+                "-lgdi32", 
+                "-lkernel32", 
+                "-lshell32", 
+                "-luser32", 
+                "-lcomdlg32",
+                "-lopengl32",
+                "-static-libgcc",
+                "-o",
+                "${workspaceFolder}/chip8.exe"
             ],
-            "group": "build",
-            "presentation": {
-                // Reveal the output only if unrecognized errors occur.
-                "reveal": "silent"
+            "group": {
+                "kind": "build",
+                "isDefault": true
             },
-            // Use the standard MS compiler pattern to detect errors, warnings and infos
-            "problemMatcher": "$msCompile"
+            "presentation": {
+                "clear": true,
+                "reveal": "always"
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Release Build",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "-O2",
+                "-DNDEBUG",
+                "chip8.c",
+                "tigr.c",
+                "console.c",
+                "filedialogs.c",              
+                "-lmsvcrt", 
+                "-lopengl32", 
+                "-lgdi32", 
+                "-lkernel32", 
+                "-lshell32", 
+                "-luser32", 
+                "-lcomdlg32",
+                "-lopengl32",
+                "-static-libgcc",
+                //"-Wl,-subsystem=gui",                
+                "-o",
+                "${workspaceFolder}/chip8.exe",
+                "-Xlinker",
+                "-s",
+                "-static-libgcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "clear": true,
+                "reveal": "always"
+            },
+            "problemMatcher": "$gcc"
         }
+
     ]
 }

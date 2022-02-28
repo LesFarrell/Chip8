@@ -226,7 +226,7 @@ int Console_Clear() {
     DWORD cCharsWritten;
     DWORD dwConSize;
 
-    if (consoleHandle == NULL) { return 0; }
+    //if (consoleHandle == NULL) { return 0; }
 
     // Get the number of character cells in the current buffer.
     if (!GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)) return 0;
