@@ -238,7 +238,9 @@ int Console_Clear() {
     if (!FillConsoleOutputCharacter(consoleHandle, (TCHAR)' ', dwConSize, coordScreen, &cCharsWritten)) return 0;
 
     // Get the current text attribute.
-    if (!GetConsoleScreenBufferInfo(consoleHandle, &csbi)) { return 0; }
+    if (!GetConsoleScreenBufferInfo(consoleHandle, &csbi)) {
+        return 0;
+    }
 
     // Set the buffer's attributes accordingly.
     if (!FillConsoleOutputAttribute(consoleHandle, csbi.wAttributes, dwConSize, coordScreen, &cCharsWritten)) return 0;
