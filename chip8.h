@@ -162,6 +162,4 @@ void Chip8_ShowProgramState(void);
 void Chip8_ProcessDroppedFiles(void);
 void Chip8_Disassemble(void);
 
-
-
 #endif
