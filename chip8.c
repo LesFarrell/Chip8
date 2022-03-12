@@ -32,6 +32,8 @@
 const int CLIENTWIDTH = 640;
 const int CLIENTHEIGHT = 320;
 
+const int CHIP8TICKSPERFRAME = 10;
+
 double Last_DelayUpdate = 0;
 double LastSoundUpdate = 0;
 double CurrentTime = 0;
@@ -319,7 +321,6 @@ void Chip8_Disassemble(void)
       break;
 
     default:
-      //    sprintf(string, "Unknown Op Code: %04X\n", Chip8_OpCode);
       break;
     }
     break;
@@ -694,7 +695,6 @@ void Chip8_EmulateCPU(void)
 
   // 2NNN - CALL addr
   case 0x2000:
-
     // Put the Chip8_ProgramCounter value the top of the stack.
     Chip8_Stack[Chip8_StackPointer] = Chip8_ProgramCounter;
 
@@ -827,10 +827,13 @@ void Chip8_EmulateCPU(void)
     // 8XY7 - Subn Vx, Vy
     case 0x0007:
       // If Vy > Vx, then VF is set to 1, otherwise 0. Then Vx is subtracted from Vy, and the results stored in Vx.
-      Chip8_VRegister[0xF] = 0;
       if (Chip8_VRegister[y] >= Chip8_VRegister[x])
       {
         Chip8_VRegister[0xF] = 1;
+      }
+      else
+      {
+        Chip8_VRegister[0xF] = 0;
       }
       Chip8_VRegister[x] = Chip8_VRegister[y] - Chip8_VRegister[x];
       Chip8_ProgramCounter += 2;
@@ -916,8 +919,6 @@ void Chip8_EmulateCPU(void)
           }
         }
       }
-      Chip8_DrawFlag = 1;
-      Chip8_ProgramCounter += 2;
     }
     else
     {
@@ -951,16 +952,14 @@ void Chip8_EmulateCPU(void)
             }
           }
         }
-        Chip8_DrawFlag = 1;
-        Chip8_ProgramCounter += 2;
       }
       else
       {
-        // Draw 8x10 graphic
+        // Draw 8xN graphic
         for (int yline = 0; yline < n; yline++)
         {
           int bitvalue = Chip8_ProgramMemory[Chip8_IndexRegister + yline];
-          for (int xline = 0; xline < 10; xline++)
+          for (int xline = 0; xline < 8; xline++)
           {
             // Mask off each bit in the bit value.
             if ((bitvalue & (0x80 >> xline)) != 0)
@@ -982,10 +981,10 @@ void Chip8_EmulateCPU(void)
             }
           }
         }
-        Chip8_DrawFlag = 1;
-        Chip8_ProgramCounter += 2;
       }
     }
+    Chip8_DrawFlag = 1;
+    Chip8_ProgramCounter += 2;
     break;
 
   case 0xE000:
@@ -1357,7 +1356,7 @@ int main(int argc, char *argv[])
   char ROM_FileName[1024] = {'\0'};
 
   // Initialise the applications window
-  screen = tigrWindow(CLIENTWIDTH, CLIENTHEIGHT, "Super Chip", TIGR_AUTO);
+  screen = tigrWindow(CLIENTWIDTH, CLIENTHEIGHT, "Super Chip", TIGR_FIXED);
 
   // Clear the client window contents before we start.
   tigrClear(screen, BACKGROUND);
@@ -1383,7 +1382,9 @@ int main(int argc, char *argv[])
     strcpy(ROM_FileName, argv[1]);
   }
 
-  // Console_Show("Debug Window");
+#ifdef NDEBUG
+  Console_Show("Debug Window");
+#endif
 
   // Loop until the user exits.
   while (!tigrClosed(screen) && !tigrKeyDown(screen, TK_ESCAPE))
@@ -1391,21 +1392,47 @@ int main(int argc, char *argv[])
     // Clear the background
     tigrClear(screen, BACKGROUND);
 
-    for (int n = 0; n < 10; n++)
+    // Only emulate one cycle per feame, if NDEUG set.
+#ifndef NDEBUG
+    for (int n = 0; n < CHIP8TICKSPERFRAME; n++)
+#endif
     {
       CurrentTime += tigrTime();
 
+#ifdef NDEBUG
       // Disassemble the current command.
-      // Chip8_Disassemble();
+      Chip8_Disassemble();
+#endif
 
+#ifdef NDEBUG
+      if (tigrKeyDown(screen, TK_RIGHT) || tigrKeyHeld(screen, TK_RIGHT))
+      {
+        Chip8_EmulateCPU();
+      }
+
+      if (tigrKeyDown(screen, TK_LEFT))
+      {
+        Chip8_ProgramCounter -= 2;
+        if (Chip8_ProgramCounter <= 512)
+        {
+          Chip8_ProgramCounter = 512;
+        }
+        Chip8_Disassemble();
+        Chip8_EmulateCPU();
+      }
+
+#else
       // Emulate a cpu cycle.
       Chip8_EmulateCPU();
+#endif
 
       // Process the keypress states.
       Chip8_GetKeyStates(screen);
 
+#ifdef NDEBUG
       // Show the chip register states.
-      // Chip8_ShowProgramState();
+      Chip8_ShowProgramState();
+#endif
 
       // Reload the current rom if 'L' pressed
       if (tigrKeyDown(screen, 'L'))
@@ -1433,6 +1460,7 @@ int main(int argc, char *argv[])
     // Tell Tigr to update.
     tigrUpdate(screen);
   }
+
   // Close the window and shut down Tigr.
   tigrFree(screen);
 
