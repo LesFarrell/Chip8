@@ -12,14 +12,17 @@ It should be fairly easy to convert the emulator code itself to a different plat
 ### Commands
 In addition to the normal CHIP8 keys of:
 
+
 | **1** | **2** | **3** | **4** |
+|----|----|----|----|
 | **q** | **w** | **e** | **r** |
 | **a** | **s** | **d** | **f** |
 | **z** | **x** | **c** | **v** |
 
-### you can use the following keys:
+#### you can also use the following keys:
 
 **O** - to browse for a ROM file.
+
 **L** - Reload the current ROM Image.
 
 
@@ -27,5 +30,8 @@ In addition to the normal CHIP8 keys of:
 I've tried the emulator with quite a few games and most seem to work without to many problems.
 
 ![/images/sweetcoptor.png](/images/sweetcoptor.png)
+
 ![/images/outlaws.png](/images/outlaws.png)
+
 ![/images/sokoban.png](/images/sokoban.png)
+
